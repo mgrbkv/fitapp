@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GoFit PIN Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+
+    .pin-container {
+      text-align: center;
+    }
+
+    .pin-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .pin-inputs input {
+      width: 50px;
+      height: 60px;
+      font-size: 32px;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .pin-inputs input:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #4a90e2;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #3578c0;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="pin-container">
+    <h2>Введите PIN-код</h2>
+
+    <div class="pin-inputs">
+      <input type="password" maxlength="1" inputmode="numeric">
+      <input type="password" maxlength="1" inputmode="numeric">
+      <input type="password" maxlength="1" inputmode="numeric">
+      <input type="password" maxlength="1" inputmode="numeric">
+    </div>
+
+    <button id="pin-submit">Ок</button>
+
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll(".pin-inputs input");
+    const button = document.getElementById("pin-submit");
+    const errorEl = document.getElementById("error");
+
+    // авто-переход между полями
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    button.addEventListener("click", () => {
+      const pin = Array.from(inputs).map(i => i.value).join("");
+
+      if (pin === "1982") {
+        window.location.href = "clientapp.html";
+      } else if (pin === "1407") {
+        window.location.href = "trainerapp.html";
+      } else {
+        errorEl.textContent = "Неверный PIN-код";
+      }
+    });
+  </script>
+
+</body>
+</html>
