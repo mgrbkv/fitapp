@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тренер.Ai</title>
+  <!-- Подключаем Tailwind CSS через CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Подключаем Font Awesome для иконок -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Добавляем стили непосредственно в head, чтобы избежать ошибок -->
+  <style>
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .chip-button {
+      height: 36px;
+      border-radius: 24px;
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #F5F6FA;
+      color: #1D1D1F;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .chip-button:hover {
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+      transform: scale(1.02);
+    }
+    .chip-button.active {
+      background: #EAE8FF;
+    }
+    .chip-button.success {
+      background: #2ECC71 !important;
+      color: white !important;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+<div id="root" class="max-w-md mx-auto bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sticky top-0 z-10">
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-bold">Тренер.Ai</h1>
+      <div class="flex space-x-2">
+        <button onclick="toggleRole()" class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg px-3 py-1 text-xs font-medium">
+          <span id="role-label">👤 Клиент</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="p-4 pb-24" id="screen-content">
+    <!-- Dashboard Screen -->
+    <div id="dashboard" class="space-y-6">
+      <!-- Блок «Сегодня» -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Сегодня</h3>
+        <div class="space-y-3">
+          <!-- Дневник калорий -->
+          <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-800">Дневник калорий</span>
+              <i class="fas fa-utensils text-green-600"></i>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xl font-bold text-gray-800">1850 / 2000 ккал</div>
+                  <div class="text-xs text-gray-500">Осталось 150 ккал</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-medium space-y-1">
+                    <div>145г &nbsp; 62г &nbsp; 180г</div>
+                    <div class="text-gray-500">Б &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ж &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; У</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="h-2 bg-gray-200 rounded-full mt-3">
+                <div class="h-full bg-green-500 rounded-full w-[95%]"></div>
+              </div>
+              
+              <div class="flex justify-between pt-2">
+                <div class="text-center">
+                  <div class="text-xs font-medium text-gray-700">🍳 Завтрак</div>
+                  <div class="text-xs text-gray-600">420 ккал</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xs font-medium text-gray-700">🍗 Обед</div>
+                  <div class="text-xs text-gray-600">610 ккал</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xs font-medium text-gray-700">🥪 Перекус</div>
+                  <div class="text-xs text-gray-600">250 ккал</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-xs font-medium text-gray-700">🥗 Ужин</div>
+                  <div class="text-xs text-gray-600">520 ккал</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаги и Вода -->
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Шаги -->
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-medium text-gray-800">Шаги</h4>
+                <i class="fas fa-shoe-prints text-blue-600 text-sm"></i>
+              </div>
+              <div class="text-2xl font-bold text-gray-800 text-center">10 480</div>
+              <div class="text-xs text-gray-500 mt-1 text-center">Еще 1200 до нормы</div>
+            </div>
+
+            <!-- Вода -->
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-medium text-gray-800">Вода</h4>
+                <i class="fas fa-tint text-blue-400 text-sm"></i>
+              </div>
+              <div class="flex items-center justify-center space-x-1">
+                <div class="text-xl font-bold text-gray-800">1.75</div>
+                <div class="text-gray-500">/ 2.0 л</div>
+              </div>
+              <div class="text-xs text-gray-500 mt-1 text-center">Еще 250 мл до нормы</div>
+            </div>
+          </div>
+
+          <!-- Тренировка сегодня -->
+          <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium text-gray-800">Силовая тренировка</div>
+                <div class="text-xs text-gray-500">18:00 • 60 мин</div>
+              </div>
+              <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">🟣 В плане</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Блок «Неделя» -->
+      <div class="bg-gradient-to-br from-gray-50 to-purple-50 rounded-2xl p-4 border border-purple-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Неделя</h3>
+        <div class="space-y-3">
+          <!-- Калории и БЖУ в одну строку -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="text-xs font-medium text-gray-700 mb-1 text-center">Калории</div>
+              <div class="text-xl font-bold text-gray-800 text-center">1950</div>
+              <div class="text-xs text-gray-500 text-center">/ 2000 ккал</div>
+              <div class="text-xs text-gray-500 text-center mt-1">в среднем за день</div>
+            </div>
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="text-xs font-medium text-gray-700 mb-1 text-center">БЖУ</div>
+              <div class="text-xs text-gray-700 text-center">153г / 67г / 175г</div>
+              <div class="text-xs text-gray-500 text-center">Б &nbsp;&nbsp; Ж &nbsp;&nbsp; У</div>
+              <div class="text-xs text-gray-500 text-center mt-1">в среднем за день</div>
+            </div>
+          </div>
+
+          <!-- Вода и Вес в одну строку -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="text-xs font-medium text-gray-700 mb-1 text-center">Вода</div>
+              <div class="text-xl font-bold text-gray-800 text-center">1.9 л</div>
+              <div class="text-xs text-gray-500 text-center">в среднем за день</div>
+            </div>
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div class="text-xs font-medium text-gray-700 mb-1 text-center">Вес</div>
+              <div class="text-lg font-bold text-gray-800 text-center">85.0 кг</div>
+              <div class="text-xs text-gray-500 text-center">−0.8 кг за 2 недели</div>
+            </div>
+          </div>
+
+          <!-- Программа питания и тренировок -->
+          <div class="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-4 border border-yellow-200">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-sm font-medium text-gray-800">Программа питания и тренировок</h4>
+              <i class="fas fa-dumbbell text-blue-600 text-sm"></i>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Пн: Грудь и трицепс</span>
+                <span class="text-blue-600 font-medium">✓</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Ср: Спина и бицепс</span>
+                <span class="text-blue-600 font-medium">✓</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-600">Пт: Ноги и плечи</span>
+                <span class="text-gray-400">○</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+              <button class="bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700">Смотреть</button>
+              <div class="bg-yellow-100 px-2 py-1 rounded-md">
+                <i class="fas fa-crown text-yellow-500"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Викторина -->
+      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-800">Викторина о питании</h3>
+          <span class="text-2xl">🎯</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">Проверьте свои знания о правильном сочетании продуктов и выиграйте скидку на курс!</p>
+        <button class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-2 rounded-lg text-sm font-medium hover:from-yellow-600 hover:to-orange-600">Пройти викторину</button>
+      </div>
+    </div>
+
+    <!-- AI Trainer Screen -->
+    <div id="ai-trainer" class="space-y-4 pb-24 hidden">
+      <!-- Trainer Widget -->
+      <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+        <div class="flex items-center space-x-4 mb-4">
+          <div class="w-16 h-16 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-3xl backdrop-blur-sm">👨🏻‍🦲</div>
+          <div>
+            <div class="text-sm opacity-90">Ваш тренер</div>
+            <div class="text-xl font-bold">Стас Вахрушев</div>
+            <div class="text-xs opacity-75">Силовые тренировки</div>
+          </div>
+        </div>
+        <button class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center space-x-2 backdrop-blur-sm">
+          <i class="fas fa-comment"></i> <span>Написать тренеру</span>
+        </button>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="space-y-4">
+        <div class="bg-gray-100 rounded-2xl p-4 max-w-xs">
+          <div class="text-xs font-semibold text-gray-600 mb-1">Ai</div>
+          <div class="text-sm text-gray-800">Привет! Как дела с питанием сегодня? Вижу, что вы пока недобрали белков</div>
+          <div class="text-xs text-gray-500 mt-1">14:30</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 max-w-xs ml-auto">
+          <div class="text-sm text-gray-800">Привет! Подскажи, что порекомендуешь</div>
+          <div class="text-xs text-gray-500 mt-1">14:50</div>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4 max-w-xs">
+          <div class="text-xs font-semibold text-gray-600 mb-1">Ai</div>
+          <div class="text-sm text-gray-800">Выпей на перекус протеиновый коктейль</div>
+          <div class="text-xs text-gray-500 mt-1">14:51</div>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4 max-w-xs">
+          <div class="text-xs font-semibold text-gray-600 mb-1">Стас</div>
+          <div class="text-sm text-gray-800">Макс, привет! Добавь еще вечером курицу на ужин</div>
+          <div class="text-xs text-gray-500 mt-1">17:23</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile" class="space-y-4 hidden">
+      <!-- User Widget -->
+      <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl p-6 text-center">
+        <div class="w-20 h-20 rounded-full bg-white bg-opacity-20 mx-auto mb-3 flex items-center justify-center text-3xl backdrop-blur-sm">
+          👤
+        </div>
+        <h2 class="text-xl font-bold">Макс Грибков</h2>
+        <p class="text-sm opacity-90">Москва</p>
+      </div>
+
+      <!-- My Data -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Мои данные</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Вес</span><span class="font-medium text-gray-800">85 кг</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Рост</span><span class="font-medium text-gray-800">177 см</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Возраст</span><span class="font-medium text-gray-800">42 лет</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Пол</span><span class="font-medium text-gray-800">Мужской</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Телефон</span><span class="font-medium text-gray-800">+7(999) 123-45-67</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">Email</span><span class="font-medium text-gray-800">max@example.com</span></div>
+          <div class="flex items-center justify-between py-1"><span class="text-gray-600">День рождения</span><span class="font-medium text-gray-800">14.07.1982</span></div>
+        </div>
+        <button class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Редактировать</button>
+      </div>
+
+      <!-- Fitness Club -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Мой фитнес-клуб</h3>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-gray-800">CrocusFitness Лужники</div>
+            <div class="text-xs text-gray-500 mt-1">Москва</div>
+          </div>
+          <button class="text-blue-600 text-sm font-medium">Изменить</button>
+        </div>
+      </div>
+
+      <!-- Goals -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Цели</h3>
+        
+        <div class="mb-3">
+          <h4 class="text-xs font-medium text-gray-700 mb-2">Мои</h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex items-center justify-between"><span class="text-gray-600">Основная цель</span><span class="font-medium">Снижение веса</span></div>
+            <div class="flex items-center justify-between"><span class="text-gray-600">Целевой вес</span><span class="font-medium">74 кг</span></div>
+            <div class="flex items-center justify-between"><span class="text-gray-600">Тренировок в неделю</span><span class="font-medium">2-3</span></div>
+          </div>
+        </div>
+
+        <hr class="my-3 border-gray-200">
+
+        <div class="mb-3">
+          <h4 class="text-xs font-medium text-gray-700 mb-2">Задания от тренера</h4>
+          <div class="space-y-1 text-sm">
+            <div class="flex items-start">
+              <span class="text-green-500 mr-2">•</span>
+              <span>Вода утром в начале дня — 250 мл</span>
+            </div>
+            <div class="flex items-start">
+              <span class="text-green-500 mr-2">•</span>
+              <span>Белок в день — 140 г</span>
+            </div>
+            <div class="flex items-start">
+              <span class="text-green-500 mr-2">•</span>
+              <span>Тренировки на низком пульсе — 2 в неделю</span>
+            </div>
+          </div>
+        </div>
+        <button class="w-full mt-3 bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700">Изменить цели</button>
+      </div>
+
+      <!-- Integrations -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Интеграции данных</h3>
+        <div class="space-y-2">
+          <button class="w-full flex items-center justify-between p-3 rounded-lg border bg-gray-50 border-gray-200">
+            <span class="text-sm font-medium text-gray-800">Apple Watch</span>
+            <span class="text-xs text-blue-600 font-medium">Подключить</span>
+          </button>
+          <button class="w-full flex items-center justify-between p-3 rounded-lg border bg-green-50 border-green-200">
+            <span class="text-sm font-medium text-gray-800">Garmin Connect</span>
+            <span class="text-xs text-green-600 font-medium">Подключено</span>
+          </button>
+          <button class="w-full flex items-center justify-between p-3 rounded-lg border bg-gray-50 border-gray-200">
+            <span class="text-sm font-medium text-gray-800">Apple Health</span>
+            <span class="text-xs text-blue-600 font-medium">Подключить</span>
+          </button>
+          <button class="w-full flex items-center justify-between p-3 rounded-lg border bg-gray-50 border-gray-200">
+            <span class="text-sm font-medium text-gray-800">Google Fit</span>
+            <span class="text-xs text-blue-600 font-medium">Подключить</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- About App -->
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">О приложении</h3>
+        <div class="space-y-2">
+          <button class="w-full text-left text-sm text-gray-700 py-2 hover:bg-gray-50 rounded-lg">Условия использования</button>
+          <button class="w-full text-left text-sm text-gray-700 py-2 hover:bg-gray-50 rounded-lg">Политика конфиденциальности</button>
+          <button class="w-full text-left text-sm text-gray-700 py-2 hover:bg-gray-50 rounded-lg">Справочный центр</button>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="text-xs text-gray-500 text-center pt-2">
+        Ai может ошибаться — проверяйте информацию.
+      </div>
+    </div>
+
+    <!-- Trainer Dashboard (Hidden by default, shown when role is trainer) -->
+    <div id="trainer" class="flex items-center justify-center min-h-[60vh] hidden">
+      <div class="text-center p-8">
+        <div class="text-6xl mb-4">👨🏻‍🦲</div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Панель тренера</h2>
+        <p class="text-gray-600 mb-6">Функционал в разработке</p>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-md mx-auto">
+          <p class="text-sm text-gray-700">Здесь будет отображаться список клиентов, их прогресс, планы тренировок и питания.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="navbar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+    <div class="flex justify-around items-center max-w-md mx-auto">
+      <button onclick="switchScreen('dashboard')" class="flex flex-col items-center space-y-1 text-blue-600">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="4" rx="1"/>
+        </svg>
+        <span class="text-xs font-medium">Сводка</span>
+      </button>
+      <button onclick="switchScreen('ai-trainer')" class="flex flex-col items-center space-y-1 text-gray-400">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18"/>
+          <path d="M7 8l5 5 5-5"/>
+          <path d="M7 16l5-5 5 5"/>
+        </svg>
+        <span class="text-xs font-medium">Тренер.Ai</span>
+      </button>
+      <button onclick="switchScreen('profile')" class="flex flex-col items-center space-y-1 text-gray-400">
+        <i class="fas fa-user text-xl"></i>
+        <span class="text-xs font-medium">Профиль</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Input -->
+  <div id="chat-input" class="fixed bottom-14 left-0 right-0 bg-white border-t border-gray-200 p-4 hidden">
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center space-x-2 mb-2">
+        <button class="p-2 text-gray-500 hover:text-gray-700">
+          <i class="fas fa-paperclip text-lg"></i>
+        </button>
+        <input type="text" placeholder="Напишите сообщение..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <button class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700">
+          <i class="fas fa-paper-plane text-sm"></i>
+        </button>
+      </div>
+      <!-- Quick Actions Chips -->
+      <div class="bg-white border-t border-[#EDEDED] pt-2 overflow-x-auto scrollbar-hide">
+        <div class="flex space-x-2 min-w-max">
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-utensils text-sm"></i> Приём пищи
+          </button>
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-tint text-sm"></i> Вода
+          </button>
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-shoe-prints text-sm"></i> Шаги
+          </button>
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-dumbbell text-sm"></i> Тренировка
+          </button>
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-moon text-sm"></i> Сон
+          </button>
+          <button class="chip-button" onclick="flashButton(this)">
+            <i class="fas fa-weight text-sm"></i> Вес
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentScreen = 'dashboard';
+  let userRole = 'user';
+
+  function switchScreen(screen) {
+    document.querySelectorAll('#screen-content > div').forEach(el => el.classList.add('hidden'));
+    document.getElementById(screen).classList.remove('hidden');
+    currentScreen = screen;
+    updateNavButtons();
+    const chatInput = document.getElementById('chat-input');
+    if (screen === 'ai-trainer') {
+      chatInput.classList.remove('hidden');
+    } else {
+      chatInput.classList.add('hidden');
+    }
+  }
+
+  function updateNavButtons() {
+    const buttons = document.querySelectorAll('#navbar button');
+    buttons.forEach(btn => btn.classList.remove('text-blue-600', 'text-gray-400'));
+    if (currentScreen === 'dashboard') buttons[0].classList.add('text-blue-600');
+    else if (currentScreen === 'ai-trainer') buttons[1].classList.add('text-blue-600');
+    else if (currentScreen === 'profile') buttons[2].classList.add('text-blue-600');
+  }
+
+  function toggleRole() {
+    userRole = userRole === 'user' ? 'trainer' : 'user';
+    document.getElementById('role-label').textContent = userRole === 'user' ? '👤 Клиент' : '👨🏻‍🦲 Тренер';
+    const navbar = document.getElementById('navbar');
+    const chatInput = document.getElementById('chat-input');
+    if (userRole === 'trainer') {
+      navbar.style.display = 'none';
+      chatInput.style.display = 'none';
+      switchScreen('trainer');
+    } else {
+      navbar.style.display = 'block';
+      switchScreen('dashboard');
+    }
+  }
+
+  function flashButton(btn) {
+    btn.classList.add('success');
+    setTimeout(() => {
+      btn.classList.remove('success');
+    }, 1000);
+  }
+
+  // Инициализация приложения
+  document.addEventListener('DOMContentLoaded', () => {
+    switchScreen('dashboard');
+  });
+</script>
+
+</body>
+</html>
+```
+
+**Что было исправлено:**
+
+1.  **Убрана попытка конфигурировать Tailwind через `tailwind.config`.** В режиме CDN это невозможно. Все необходимые классы уже загружены.
+2.  **Добавлен обработчик `DOMContentLoaded`.** Это гарантирует, что скрипт запустится только после полной загрузки DOM, что является хорошей практикой и помогает избежать ошибок.
+3.  **Упрощена структура.** Все стили теперь находятся в теге `<style>` внутри `<head>`, что делает код более надежным для выполнения в браузере.
+
+Этот код должен корректно отображаться и работать в любом современном браузере.`
