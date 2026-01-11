@@ -4,9 +4,17 @@
   <meta charset="UTF-8" />
   <title>CRM Trainer.Ai — Тренер</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Tailwind CSS через CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <!-- Google Material Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
   <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     
@@ -28,7 +36,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 85vh;
+      height: 95vh;
       background: white;
       border-radius: 16px 16px 0 0;
       overflow: hidden;
@@ -60,8 +68,8 @@
     <div id="app-header" class="bg-white p-4 border-b border-gray-200">
       <div class="flex justify-between items-center">
         <h1 id="header-title" class="text-lg font-semibold text-gray-900">Сводка</h1>
-        <button id="ai-chat-btn" class="text-white text-sm font-medium py-2 px-4 rounded-lg" style="background: linear-gradient(90deg, #4A90E2 0%, #7C3AED 100%);">
-          Ai-чат
+        <button id="profile-btn" class="w-10 h-10 rounded-full flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #4A90E2 0%, #7C3AED 100%);">
+          👨🏻‍🦲
         </button>
       </div>
     </div>
@@ -72,17 +80,13 @@
     <!-- Bottom Navigation -->
     <div class="bg-white border-t border-gray-200 px-4 py-2 fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-10">
       <div class="flex justify-around">
-        <button data-screen="dashboard" class="nav-btn flex flex-col items-center py-2 px-3 text-blue-600">
-          <i class="fa-solid fa-chart-column text-xl"></i>
+        <button data-screen="dashboard" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
+          <span class="material-symbols-outlined text-gray-500">bar_chart</span>
           <span class="text-xs mt-1">Сводка</span>
         </button>
-        <button data-screen="crm" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
-          <i class="fa-solid fa-users text-xl"></i>
-          <span class="text-xs mt-1">CRM</span>
-        </button>
-        <button data-screen="profile" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
-          <i class="fa-solid fa-gear text-xl"></i>
-          <span class="text-xs mt-1">Профиль</span>
+        <button data-screen="agent" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
+          <span class="material-symbols-outlined text-gray-500">chat</span>
+          <span class="text-xs mt-1">ИИ-агент</span>
         </button>
       </div>
     </div>
@@ -95,11 +99,11 @@
       <div class="bg-white p-4 border-b border-gray-200 flex justify-between items-center">
         <h2 class="text-lg font-semibold text-gray-900">ИИ-агент</h2>
         <button id="close-ai-modal" class="text-gray-500 hover:text-gray-700">
-          <i class="fa-solid fa-xmark text-xl"></i>
+          <span class="material-symbols-outlined text-gray-500">close</span>
         </button>
       </div>
       
-      <div id="ai-messages" class="overflow-y-auto p-4 space-y-3" style="height: calc(85vh - 180px);">
+      <div id="ai-messages" class="overflow-y-auto p-4 space-y-3" style="height: calc(95vh - 180px);">
         <!-- Сообщения здесь -->
       </div>
       
@@ -121,12 +125,12 @@
         
         <div class="flex gap-2">
           <button class="text-gray-500 p-2">
-            <i class="fa-solid fa-paperclip"></i>
+            <span class="material-symbols-outlined text-gray-500">attach_file</span>
           </button>
           <input id="ai-input" type="text" placeholder="Сообщение агенту..." 
             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
           <button id="ai-send" class="bg-blue-600 text-white p-2 rounded-lg">
-            <i class="fa-solid fa-paper-plane"></i>
+            <span class="material-symbols-outlined text-white">send</span>
           </button>
         </div>
       </div>
@@ -257,13 +261,34 @@
     let searchQuery = '';
     let statusFilter = 'Все';
     let selectedClient = null;
-    let clientDetailTab = 'info'; // 'info' или 'activity'
+    let clientDetailTab = 'info'; // 'info' или 'activity' или 'history'
     
     let aiMessages = [
       { id: 1, sender: "agent", text: "Привет! У тебя есть клиенты, которым нужно напомнить об оплате." },
       { id: 2, sender: "trainer", text: "Да, отправь мне список" },
       { id: 3, sender: "agent", text: "Вот клиенты с просрочкой:" },
     ];
+
+    // ========== HELPERS ==========
+    function getStatusColor(status) {
+      const colors = {
+        'Купил': 'bg-green-100 text-green-800',
+        'Думает': 'bg-yellow-100 text-yellow-800',
+        'Демо': 'bg-blue-100 text-blue-800',
+        'Новый': 'bg-purple-100 text-purple-800'
+      };
+      return colors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    function getFilterColor(filter) {
+      const colors = {
+        'Купил': 'bg-green-100 text-green-800',
+        'Думает': 'bg-yellow-100 text-yellow-800',
+        'Демо': 'bg-blue-100 text-blue-800',
+        'Новый': 'bg-purple-100 text-purple-800'
+      };
+      return colors[filter] || 'bg-gray-100 text-gray-700';
+    }
 
     // ========== NAVIGATION ==========
     const navBtns = document.querySelectorAll('.nav-btn');
@@ -283,98 +308,58 @@
 
     function updateNavButtons() {
       navBtns.forEach(btn => {
+        const icon = btn.querySelector('.material-symbols-outlined');
         if (btn.dataset.screen === currentScreen) {
           btn.classList.remove('text-gray-500');
           btn.classList.add('text-blue-600');
+          if (icon) {
+            icon.classList.remove('text-gray-500');
+            icon.classList.add('text-blue-600');
+          }
         } else {
           btn.classList.remove('text-blue-600');
           btn.classList.add('text-gray-500');
+          if (icon) {
+            icon.classList.remove('text-blue-600');
+            icon.classList.add('text-gray-500');
+          }
         }
       });
     }
 
-    // ========== AI MODAL ==========
-    const aiChatBtn = document.getElementById('ai-chat-btn');
-    const aiModal = document.getElementById('ai-modal');
-    const closeAiModal = document.getElementById('close-ai-modal');
-    const aiInput = document.getElementById('ai-input');
-    const aiSend = document.getElementById('ai-send');
-    const aiMessagesContainer = document.getElementById('ai-messages');
-
-    aiChatBtn.addEventListener('click', () => {
-      aiModal.classList.add('active');
-      renderAIMessages();
-    });
-
-    closeAiModal.addEventListener('click', () => {
-      aiModal.classList.remove('active');
-    });
-
-    aiModal.addEventListener('click', (e) => {
-      if (e.target === aiModal) {
-        aiModal.classList.remove('active');
-      }
-    });
-
-    aiSend.addEventListener('click', sendAIMessage);
-    aiInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendAIMessage();
-    });
-
-    document.querySelectorAll('.ai-action-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.textContent.trim();
-        aiMessages.push({ id: Date.now(), sender: 'agent', text: `Действие: ${action}` });
-        renderAIMessages();
-      });
-    });
-
-    function sendAIMessage() {
-      const text = aiInput.value.trim();
-      if (!text) return;
-      aiMessages.push({ id: Date.now(), sender: 'trainer', text });
-      aiInput.value = '';
-      renderAIMessages();
-    }
-
-    function renderAIMessages() {
-      aiMessagesContainer.innerHTML = aiMessages.map(msg => `
-        <div class="flex ${msg.sender === 'trainer' ? 'justify-end' : 'justify-start'}">
-          <div class="max-w-xs ${msg.sender === 'trainer' ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200'} rounded-lg p-3 shadow-sm">
-            <p class="text-sm">${msg.text}</p>
-          </div>
-        </div>
-      `).join('');
-      aiMessagesContainer.scrollTop = aiMessagesContainer.scrollHeight;
-    }
+    // ========== AI MODAL (REMOVED - теперь agent screen) ==========
 
     // ========== SCREENS ==========
     function renderScreen() {
       const container = document.getElementById('screen-container');
       const header = document.getElementById('header-title');
-      const aiChatBtn = document.getElementById('ai-chat-btn');
+      const profileBtn = document.getElementById('profile-btn');
       
       if (selectedClient) {
-        header.textContent = 'Детали клиента';
-        aiChatBtn.textContent = '';
-        aiChatBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
-        aiChatBtn.style.background = '#F3F4F6';
-        aiChatBtn.style.color = '#1F2937';
-        aiChatBtn.onclick = () => {
+        header.innerHTML = '';
+        header.className = 'flex items-center gap-3';
+        const backBtn = document.createElement('button');
+        backBtn.className = 'text-gray-600 hover:text-gray-800';
+        backBtn.innerHTML = '<span class="material-symbols-outlined text-gray-700">chevron_left</span>';
+        backBtn.onclick = () => {
           selectedClient = null;
           renderScreen();
         };
+        const title = document.createElement('span');
+        title.className = 'text-lg font-semibold text-gray-900';
+        title.textContent = 'Детали клиента';
+        header.appendChild(backBtn);
+        header.appendChild(title);
         container.innerHTML = renderClientDetail();
         initClientDetailSwipes();
         return;
       }
       
-      aiChatBtn.textContent = 'Ai-чат';
-      aiChatBtn.style.background = 'linear-gradient(90deg, #4A90E2 0%, #7C3AED 100%)';
-      aiChatBtn.style.color = '#FFFFFF';
-      aiChatBtn.onclick = () => {
-        aiModal.classList.add('active');
-        renderAIMessages();
+      profileBtn.textContent = '👨🏻‍🦲';
+      profileBtn.style.background = 'linear-gradient(135deg, #4A90E2 0%, #7C3AED 100%)';
+      profileBtn.onclick = () => {
+        currentScreen = 'profile';
+        renderScreen();
       };
       
       switch(currentScreen) {
@@ -393,9 +378,32 @@
           container.innerHTML = renderDashboard();
           break;
         case 'crm':
-          header.textContent = 'CRM';
-          container.innerHTML = renderCRM();
-          initCRMSwipes();
+        case 'deals':
+        case 'mailings':
+          // Добавляем кнопку назад для этих экранов
+          header.innerHTML = '';
+          header.className = 'flex items-center gap-3';
+          const backBtn = document.createElement('button');
+          backBtn.className = 'text-gray-600 hover:text-gray-800';
+          backBtn.innerHTML = '<span class="material-symbols-outlined text-gray-700">chevron_left</span>';
+          backBtn.onclick = () => switchScreen('dashboard');
+          const title = document.createElement('span');
+          title.className = 'text-lg font-semibold text-gray-900';
+          title.textContent = currentScreen === 'crm' ? 'Клиенты' : currentScreen === 'deals' ? 'Сделки' : 'Рассылки';
+          header.appendChild(backBtn);
+          header.appendChild(title);
+          
+          if (currentScreen === 'crm') {
+            container.innerHTML = renderCRM();
+          } else if (currentScreen === 'deals') {
+            container.innerHTML = '<div class="p-4"><div class="bg-white rounded-lg p-8 shadow-sm border border-gray-100 text-center"><p class="text-gray-500">Сделки в разработке</p></div></div>';
+          } else {
+            container.innerHTML = '<div class="p-4"><div class="bg-white rounded-lg p-8 shadow-sm border border-gray-100 text-center"><p class="text-gray-500">Рассылки в разработке</p></div></div>';
+          }
+          break;
+        case 'agent':
+          header.textContent = 'ИИ-агент';
+          container.innerHTML = renderAgentScreen();
           break;
         case 'profile':
           header.textContent = 'Профиль';
@@ -404,91 +412,174 @@
       }
     }
 
+    // ========== AGENT SCREEN ==========
+    function renderAgentScreen() {
+      return `
+        <div class="flex flex-col h-full pb-24">
+          <div class="flex-1 overflow-y-auto p-4 space-y-3">
+            ${aiMessages.map(msg => `
+              <div class="flex ${msg.sender === 'trainer' ? 'justify-end' : 'justify-start'}">
+                <div class="max-w-xs ${msg.sender === 'trainer' ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border border-gray-200'} rounded-lg p-3 shadow-sm">
+                  <p class="text-sm">${msg.text}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="p-4 bg-white border-t border-gray-200 space-y-2 fixed bottom-14 left-0 right-0 max-w-sm mx-auto">
+            <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
+              <button class="agent-action-btn flex-shrink-0 bg-gray-100 text-gray-700 py-1 px-3 rounded-full text-xs whitespace-nowrap">
+                дожим после демо
+              </button>
+              <button class="agent-action-btn flex-shrink-0 bg-gray-100 text-gray-700 py-1 px-3 rounded-full text-xs whitespace-nowrap">
+                напомнить оплату
+              </button>
+              <button class="agent-action-btn flex-shrink-0 bg-gray-100 text-gray-700 py-1 px-3 rounded-full text-xs whitespace-nowrap">
+                рассылка
+              </button>
+              <button class="agent-action-btn flex-shrink-0 bg-gray-100 text-gray-700 py-1 px-3 rounded-full text-xs whitespace-nowrap">
+                отчет за неделю
+              </button>
+            </div>
+            
+            <div class="flex gap-2">
+              <button class="text-gray-500 p-2">
+                <span class="material-symbols-outlined text-gray-500">attach_file</span>
+              </button>
+              <input id="agent-input" type="text" placeholder="Сообщение агенту..." 
+                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+              <button id="agent-send" class="bg-blue-600 text-white p-2 rounded-lg">
+                <span class="material-symbols-outlined text-white">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // ========== DASHBOARD ==========
     function renderDashboard() {
       const filteredClients = clients.filter(c => c.status === "Демо" || c.status === "Купил");
       
       return `
         <div class="p-4 space-y-4">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-users text-blue-600"></i>
-                <span class="text-sm text-gray-600">Клиенты</span>
+          
+          <!-- Уведомления -->
+          <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200 relative">
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+              <span class="material-symbols-outlined text-gray-500">close</span>
+            </button>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-white">smart_toy</span>
               </div>
-              <p class="text-2xl font-bold text-gray-900">24</p>
-              <p class="text-xs text-green-600">+2 за неделю</p>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-coins text-green-600"></i>
-                <span class="text-sm text-gray-600">Выручка</span>
+              <div>
+                <p class="text-xs text-gray-500 mb-1">ИИ-агент</p>
+                <p class="text-sm text-gray-800">У тебя на сегодня ряд дел по обзвону клиентов и пара тренировок вечером</p>
               </div>
-              <p class="text-2xl font-bold text-gray-900">125т</p>
-              <p class="text-xs text-green-600">+15% за месяц</p>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-arrow-trend-up text-purple-600"></i>
-                <span class="text-sm text-gray-600">Продажи</span>
-              </div>
-              <p class="text-2xl font-bold text-gray-900">8</p>
-              <p class="text-xs text-green-600">+1 за неделю</p>
-            </div>
-            
-            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex items-center gap-2 mb-2">
-                <i class="fa-regular fa-calendar-check text-orange-600"></i>
-                <span class="text-sm text-gray-600">Задачи</span>
-              </div>
-              <p class="text-2xl font-bold text-gray-900">15</p>
-              <p class="text-xs text-gray-500">на неделе</p>
             </div>
           </div>
           
-          <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-            <div class="flex-shrink-0 w-[92%] bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="font-medium text-gray-900">Ближайшие задачи</h3>
-              </div>
-              ${tasks.slice(0, 3).map(task => `
-                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                  <div>
-                    <p class="text-sm text-gray-800">${task.text}</p>
-                    <p class="text-xs text-gray-500">${task.client}</p>
-                  </div>
-                  <span class="text-xs px-2 py-1 rounded ${task.overdue ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
-                    ${task.overdue ? 'Просрочено' : task.date}
-                  </span>
+          <!-- Сводка -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-800 mb-3">Сводка</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="material-symbols-outlined text-green-600">payments</span>
+                  <span class="text-sm text-gray-600">Выручка</span>
                 </div>
-              `).join('')}
-            </div>
-            
-            <div class="flex-shrink-0 w-[92%] bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="font-medium text-gray-900">Клиенты на неделе</h3>
+                <p class="text-2xl font-bold text-gray-900">125т</p>
+                <p class="text-xs text-green-600">+15% за месяц</p>
               </div>
-              ${filteredClients.slice(0, 3).map(client => `
-                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                  <div class="flex-1">
-                    <div class="flex justify-between items-center">
-                      <p class="text-sm text-gray-800">${client.name}</p>
-                      <div class="flex gap-2">
-                        <span class="text-xs px-2 py-1 rounded ${getStatusColor(client.status)}">
-                          ${client.day}
-                        </span>
-                        <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-800">
-                          ${client.location}
-                        </span>
+              
+              <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="material-symbols-outlined text-purple-600">trending_up</span>
+                  <span class="text-sm text-gray-600">Продажи</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">8</p>
+                <p class="text-xs text-green-600">+1 за неделю</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Дела -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-800 mb-3">Дела</h3>
+            <div class="flex space-x-4 overflow-x-auto scrollbar-hide">
+              <div class="flex-shrink-0 w-[92%] bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-3">
+                  <h4 class="font-medium text-gray-900">Ближайшие задачи</h4>
+                </div>
+                ${tasks.slice(0, 3).map(task => `
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <div>
+                      <p class="text-sm text-gray-800">${task.text}</p>
+                      <p class="text-xs text-gray-500">${task.client}</p>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded ${task.overdue ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                      ${task.overdue ? 'Просрочено' : task.date}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+              
+              <div class="flex-shrink-0 w-[92%] bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-3">
+                  <h4 class="font-medium text-gray-900">Клиенты на неделе</h4>
+                </div>
+                ${filteredClients.slice(0, 3).map(client => `
+                  <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <div class="flex-1">
+                      <div class="flex justify-between items-center">
+                        <p class="text-sm text-gray-800">${client.name}</p>
+                        <div class="flex gap-2">
+                          <span class="text-xs px-2 py-1 rounded ${getStatusColor(client.status)}">
+                            ${client.day}
+                          </span>
+                          <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-800">
+                            ${client.location}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              `).join('')}
+                `).join('')}
+              </div>
             </div>
           </div>
+          
+          <!-- CRM -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-800 mb-3">CRM</h3>
+            <div class="grid grid-cols-3 gap-3">
+              <div onclick="switchScreen('crm')" class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                  <span class="material-symbols-outlined text-blue-600">group</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">24</p>
+                <p class="text-xs text-gray-600 mt-1">Клиенты</p>
+              </div>
+              
+              <div onclick="switchScreen('deals')" class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                  <span class="material-symbols-outlined text-purple-600">handshake</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">12</p>
+                <p class="text-xs text-gray-600 mt-1">Сделки</p>
+              </div>
+              
+              <div onclick="switchScreen('mailings')" class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                  <span class="material-symbols-outlined text-green-600">mail</span>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">3</p>
+                <p class="text-xs text-gray-600 mt-1">Рассылки</p>
+              </div>
+            </div>
+          </div>
+          
         </div>
       `;
     }
@@ -496,27 +587,8 @@
     // ========== CRM ==========
     function renderCRM() {
       return `
-        <div class="bg-white p-4 border-b border-gray-200">
-          <div class="flex gap-2 items-center">
-            <button class="crm-tab-btn ${currentCRMTab === 'clients' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'} flex-1 py-2 px-3 rounded-lg text-sm font-medium" data-tab="clients">
-              Клиенты
-            </button>
-            <button class="crm-tab-btn ${currentCRMTab === 'deals' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'} flex-1 py-2 px-3 rounded-lg text-sm font-medium" data-tab="deals">
-              Сделки
-            </button>
-            <button class="crm-tab-btn ${currentCRMTab === 'reports' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'} flex-1 py-2 px-3 rounded-lg text-sm font-medium" data-tab="reports">
-              Рассылки
-            </button>
-            <button class="p-2 rounded-lg" style="background-color: #2ECC71; color: white;">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </div>
-        </div>
-        
         <div id="crm-content">
-          ${currentCRMTab === 'clients' ? renderCRMClients() : ''}
-          ${currentCRMTab === 'deals' ? renderCRMDeals() : ''}
-          ${currentCRMTab === 'reports' ? renderCRMReports() : ''}
+          ${renderCRMClients()}
         </div>
       `;
     }
@@ -532,7 +604,7 @@
         <div class="p-4 space-y-3">
           <div class="relative">
             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <i class="fa-solid fa-magnifying-glass"></i>
+              <span class="material-symbols-outlined text-gray-400">search</span>
             </div>
             <input type="text" id="search-input" placeholder="Поиск клиентов..." value="${searchQuery}"
               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm" />
@@ -547,14 +619,20 @@
           </div>
           
           <div class="space-y-3">
-            ${filtered.length ? filtered.map(client => `
+            ${filtered.length ? filtered.map(client => {
+              const initial = client.name.charAt(0).toUpperCase();
+              const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'];
+              const colorClass = colors[client.id % colors.length];
+              return `
               <div class="client-card bg-white rounded-lg p-4 shadow-sm border border-gray-100 cursor-pointer" data-client-id="${client.id}">
                 <div class="flex items-start gap-3">
-                  <img src="${client.avatar}" alt="${client.name}" class="w-10 h-10 rounded-full flex-shrink-0" />
+                  <div class="w-12 h-12 rounded-full ${colorClass} flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    ${initial}
+                  </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                       <h3 class="font-medium text-gray-900 truncate">${client.name}</h3>
-                      ${client.premium ? '<i class="fa-solid fa-crown text-yellow-500 text-sm flex-shrink-0"></i>' : ''}
+                      ${client.premium ? '<span class="material-symbols-outlined text-yellow-500">workspace_premium</span>' : ''}
                     </div>
                     <span class="inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(client.status)}">
                       ${client.status}
@@ -562,7 +640,7 @@
                   </div>
                 </div>
               </div>
-            `).join('') : '<div class="text-center py-8"><p class="text-gray-500">Клиенты не найдены</p></div>'}
+            `}).join('') : '<div class="text-center py-8"><p class="text-gray-500">Клиенты не найдены</p></div>'}
           </div>
         </div>
       `;
@@ -571,40 +649,8 @@
     function renderCRMDeals() {
       return `
         <div class="p-4 space-y-6">
-          <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-            <h3 class="font-medium text-gray-900 mb-3">Воронки продаж</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Новые лиды</span>
-                <span class="text-sm font-medium text-gray-900">12</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">На консультации</span>
-                <span class="text-sm font-medium text-gray-900">8</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Покупка</span>
-                <span class="text-sm font-medium text-gray-900">5</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-            <h3 class="font-medium text-gray-900 mb-3">Сегменты</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Новые клиенты</span>
-                <span class="text-sm font-medium text-gray-900">8</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Повторные</span>
-                <span class="text-sm font-medium text-gray-900">16</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">VIP-клиенты</span>
-                <span class="text-sm font-medium text-gray-900">4</span>
-              </div>
-            </div>
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 text-center">
+            <p class="text-gray-500">Сделки в разработке</p>
           </div>
         </div>
       `;
@@ -615,17 +661,17 @@
         <div class="p-4 space-y-6">
           <div class="grid grid-cols-3 gap-3">
             <div class="border border-gray-200 rounded-lg p-3 text-center bg-blue-50">
-              <i class="fa-regular fa-envelope text-blue-600 text-[20px] mx-auto mb-1"></i>
+              <span class="material-symbols-outlined text-green-600">mail</span>
               <p class="text-xs text-gray-600">Активные рассылки</p>
               <p class="text-lg font-bold text-gray-900">3</p>
             </div>
             <div class="border border-gray-200 rounded-lg p-3 text-center bg-green-50">
-              <i class="fa-regular fa-eye text-green-600 text-[20px] mx-auto mb-1"></i>
+              <span class="material-symbols-outlined text-green-600">visibility</span>
               <p class="text-xs text-gray-600">Открытие</p>
               <p class="text-lg font-bold text-gray-900">65%</p>
             </div>
             <div class="border border-gray-200 rounded-lg p-3 text-center bg-purple-50">
-              <i class="fa-solid fa-arrow-trend-up text-purple-600 text-[20px] mx-auto mb-1"></i>
+              <span class="material-symbols-outlined text-purple-600">trending_up</span>
               <p class="text-xs text-gray-600">Конверсия</p>
               <p class="text-lg font-bold text-gray-900">12%</p>
             </div>
@@ -680,17 +726,20 @@
               <button class="client-tab-btn flex-1 py-3 text-sm font-medium ${clientDetailTab === 'activity' ? 'text-blue-600' : 'text-gray-600'}" data-tab="activity">
                 Активность
               </button>
-              <div class="tab-indicator" style="width: 50%; left: ${clientDetailTab === 'info' ? '0%' : '50%'};"></div>
+              <button class="client-tab-btn flex-1 py-3 text-sm font-medium ${clientDetailTab === 'history' ? 'text-blue-600' : 'text-gray-600'}" data-tab="history">
+                История
+              </button>
+              <div class="tab-indicator" style="width: 33.33%; left: ${clientDetailTab === 'info' ? '0%' : clientDetailTab === 'activity' ? '33.33%' : '66.66%'};"></div>
             </div>
           </div>
           
           <div id="client-detail-content" class="flex-1 overflow-y-auto p-4 space-y-6">
-            ${clientDetailTab === 'info' ? renderClientInfo() : renderClientActivity()}
+            ${clientDetailTab === 'info' ? renderClientInfo() : clientDetailTab === 'activity' ? renderClientActivity() : renderClientHistory()}
           </div>
           
           <div class="p-4 bg-white border-t border-gray-200">
             <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2">
-              <i class="fa-solid fa-message"></i>
+              <span class="material-symbols-outlined text-blue-600">chat</span>
               Сообщение
             </button>
           </div>
@@ -704,7 +753,7 @@
           <img src="${selectedClient.avatar}" alt="${selectedClient.name}" class="w-24 h-24 rounded-full mb-4 border-4 border-blue-100" />
           <h2 class="text-xl font-bold text-gray-900">${selectedClient.name}</h2>
           <div class="flex items-center gap-2 mt-2">
-            <i class="fa-solid fa-check text-green-500"></i>
+            <span class="material-symbols-outlined text-green-600">check</span>
             <span class="text-sm font-medium text-green-600 bg-green-100 px-3 py-1 rounded-full">
               Подтвержден
             </span>
@@ -715,48 +764,33 @@
           <h3 class="font-medium text-gray-900 mb-3">Контактная информация</h3>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">Телефон</span>
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-phone text-gray-400"></i>
-                <span class="text-gray-900">${selectedClient.phone}</span>
+                <span class="material-symbols-outlined text-green-600">call</span>
+                <span class="text-gray-500">Телефон</span>
               </div>
+              <span class="text-gray-900">${selectedClient.phone}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">Email</span>
               <div class="flex items-center gap-2">
-                <i class="fa-regular fa-envelope text-gray-400"></i>
-                <span class="text-gray-900">${selectedClient.email}</span>
+                <span class="material-symbols-outlined text-green-600">mail</span>
+                <span class="text-gray-500">Email</span>
               </div>
+              <span class="text-gray-900">${selectedClient.email}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">Возраст</span>
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-user text-gray-400"></i>
-                <span class="text-gray-900">${selectedClient.age} лет</span>
+                <span class="material-symbols-outlined text-gray-700">person</span>
+                <span class="text-gray-500">Возраст</span>
               </div>
+              <span class="text-gray-900">${selectedClient.age} лет</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-500">Местоположение</span>
               <div class="flex items-center gap-2">
-                <i class="fa-solid fa-location-dot text-gray-400"></i>
-                <span class="text-gray-900">${selectedClient.location}</span>
+                <span class="material-symbols-outlined text-gray-500">location_on</span>
+                <span class="text-gray-500">Местоположение</span>
               </div>
+              <span class="text-gray-900">${selectedClient.location}</span>
             </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <h3 class="font-medium text-gray-900 mb-3">История</h3>
-          <div class="space-y-3">
-            ${selectedClient.history.map(item => `
-              <div class="border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
-                <p class="text-sm text-gray-800">${item.message}</p>
-                <div class="flex justify-between items-center mt-1">
-                  <span class="text-xs text-gray-500">${item.date}</span>
-                  <span class="text-xs text-gray-400">${item.sender}</span>
-                </div>
-              </div>
-            `).join('')}
           </div>
         </div>
       `;
@@ -807,6 +841,26 @@
             </div>
           </div>
         </div>
+      `;
+    }
+
+    // ========== CLIENT HISTORY ==========
+    function renderClientHistory() {
+      return `
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h3 class="font-medium text-gray-900 mb-3">История взаимодействий</h3>
+          <div class="space-y-3">
+            ${selectedClient.history.map(item => `
+              <div class="border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
+                <p class="text-sm text-gray-800">${item.message}</p>
+                <div class="flex justify-between items-center mt-1">
+                  <span class="text-xs text-gray-500">${item.date}</span>
+                  <span class="text-xs text-gray-400">${item.sender}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
         
         <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <h3 class="font-medium text-gray-900 mb-3">Заказы</h3>
@@ -815,7 +869,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <div class="p-2 bg-blue-100 rounded-lg">
-                    <i class="fa-solid fa-check text-blue-600"></i>
+                    <span class="material-symbols-outlined text-green-600">check</span>
                   </div>
                   <span class="text-gray-700">${product}</span>
                 </div>
@@ -832,32 +886,32 @@
         <div class="p-4 space-y-3">
           <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <h3 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-user text-[16px]"></i>
-              О тренере
+              <span class="material-symbols-outlined text-gray-700">person</span>
+              О пользователе
             </h3>
-            <div class="space-y-2">
-              <div>
-                <p class="text-sm text-gray-600">Имя</p>
-                <p class="text-sm font-medium text-gray-900">Иван Иванов</p>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Имя</span>
+                <span class="text-sm font-medium text-gray-900 text-right">Иван Иванов</span>
               </div>
-              <div>
-                <p class="text-sm text-gray-600">Стаж</p>
-                <p class="text-sm font-medium text-gray-900">5 лет</p>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Стаж</span>
+                <span class="text-sm font-medium text-gray-900">5 лет</span>
               </div>
-              <div>
-                <p class="text-sm text-gray-600">Специализация</p>
-                <p class="text-sm font-medium text-gray-900">Персональный тренинг, питание</p>
+              <div class="flex justify-between items-start">
+                <span class="text-sm text-gray-600">Специализация</span>
+                <span class="text-sm font-medium text-gray-900 text-right max-w-[60%]">Персональный тренинг, питание</span>
               </div>
-              <div>
-                <p class="text-sm text-gray-600">Контакт</p>
-                <p class="text-sm font-medium text-gray-900">+7 (999) 123-45-67</p>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Контакт</span>
+                <span class="text-sm font-medium text-gray-900">+7 (999) 123-45-67</span>
               </div>
             </div>
           </div>
           
           <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <h3 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-box-archive text-[16px]"></i>
+              <span class="material-symbols-outlined text-gray-700">archive</span>
               Настройки CRM
             </h3>
             <div class="space-y-3">
@@ -874,7 +928,7 @@
           
           <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <h3 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-gear text-[16px]"></i>
+              <span class="material-symbols-outlined text-gray-700">settings</span>
               О приложении
             </h3>
             <div class="space-y-3">
@@ -897,29 +951,25 @@
       `;
     }
 
-    // ========== HELPERS ==========
-    function getStatusColor(status) {
-      const colors = {
-        'Купил': 'bg-green-100 text-green-800',
-        'Думает': 'bg-yellow-100 text-yellow-800',
-        'Демо': 'bg-blue-100 text-blue-800',
-        'Новый': 'bg-purple-100 text-purple-800'
-      };
-      return colors[status] || 'bg-gray-100 text-gray-800';
-    }
-
-    function getFilterColor(filter) {
-      const colors = {
-        'Купил': 'bg-green-100 text-green-800',
-        'Думает': 'bg-yellow-100 text-yellow-800',
-        'Демо': 'bg-blue-100 text-blue-800',
-        'Новый': 'bg-purple-100 text-purple-800'
-      };
-      return colors[filter] || 'bg-gray-100 text-gray-700';
-    }
-
     // ========== EVENT DELEGATION ==========
     document.addEventListener('click', (e) => {
+      // Agent screen actions
+      if (e.target.closest('.agent-action-btn')) {
+        const action = e.target.closest('.agent-action-btn').textContent.trim();
+        aiMessages.push({ id: Date.now(), sender: 'agent', text: `Действие: ${action}` });
+        renderScreen();
+      }
+      
+      if (e.target.id === 'agent-send') {
+        const input = document.getElementById('agent-input');
+        const text = input.value.trim();
+        if (text) {
+          aiMessages.push({ id: Date.now(), sender: 'trainer', text });
+          input.value = '';
+          renderScreen();
+        }
+      }
+      
       // CRM Tab switching
       if (e.target.closest('.crm-tab-btn')) {
         const tab = e.target.closest('.crm-tab-btn').dataset.tab;
@@ -929,16 +979,18 @@
       
       // Search
       if (e.target.id === 'search-input') {
-        e.target.addEventListener('input', (ev) => {
+        const updateSearch = (ev) => {
           searchQuery = ev.target.value;
-          document.getElementById('crm-content').innerHTML = renderCRMClients();
-        });
+          renderScreen();
+        };
+        e.target.removeEventListener('input', updateSearch);
+        e.target.addEventListener('input', updateSearch);
       }
       
       // Status filter
       if (e.target.closest('.status-filter-btn')) {
         statusFilter = e.target.closest('.status-filter-btn').dataset.filter;
-        document.getElementById('crm-content').innerHTML = renderCRMClients();
+        renderScreen();
       }
       
       // Client card click
@@ -953,6 +1005,17 @@
       if (e.target.closest('.client-tab-btn')) {
         clientDetailTab = e.target.closest('.client-tab-btn').dataset.tab;
         renderScreen();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.id === 'agent-input' && e.key === 'Enter') {
+        const text = e.target.value.trim();
+        if (text) {
+          aiMessages.push({ id: Date.now(), sender: 'trainer', text });
+          e.target.value = '';
+          renderScreen();
+        }
       }
     });
 
