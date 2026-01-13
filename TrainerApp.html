@@ -68,8 +68,8 @@
     <div id="app-header" class="bg-white p-4 border-b border-gray-200">
       <div class="flex justify-between items-center">
         <h1 id="header-title" class="text-lg font-semibold text-gray-900">Сводка</h1>
-        <button id="profile-btn" class="w-10 h-10 rounded-full flex items-center justify-center text-2xl" style="background: linear-gradient(135deg, #4A90E2 0%, #7C3AED 100%);">
-          👨🏻‍🦲
+        <button id="ai-agent-btn" class="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600">
+          <span class="material-symbols-outlined text-white">smart_toy</span>
         </button>
       </div>
     </div>
@@ -84,9 +84,9 @@
           <span class="material-symbols-outlined text-gray-500">bar_chart</span>
           <span class="text-xs mt-1">Сводка</span>
         </button>
-        <button data-screen="agent" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
-          <span class="material-symbols-outlined text-gray-500">chat</span>
-          <span class="text-xs mt-1">ИИ-агент</span>
+        <button data-screen="profile" class="nav-btn flex flex-col items-center py-2 px-3 text-gray-500">
+          <span class="material-symbols-outlined text-gray-500">person</span>
+          <span class="text-xs mt-1">Профиль</span>
         </button>
       </div>
     </div>
@@ -333,7 +333,7 @@
     function renderScreen() {
       const container = document.getElementById('screen-container');
       const header = document.getElementById('header-title');
-      const profileBtn = document.getElementById('profile-btn');
+      const aiAgentBtn = document.getElementById('ai-agent-btn');
       
       if (selectedClient) {
         header.innerHTML = '';
@@ -350,15 +350,15 @@
         title.textContent = 'Детали клиента';
         header.appendChild(backBtn);
         header.appendChild(title);
+        aiAgentBtn.style.display = 'none';
         container.innerHTML = renderClientDetail();
         initClientDetailSwipes();
         return;
       }
       
-      profileBtn.textContent = '👨🏻‍🦲';
-      profileBtn.style.background = 'linear-gradient(135deg, #4A90E2 0%, #7C3AED 100%)';
-      profileBtn.onclick = () => {
-        currentScreen = 'profile';
+      aiAgentBtn.style.display = 'flex';
+      aiAgentBtn.onclick = () => {
+        currentScreen = 'agent';
         renderScreen();
       };
       
